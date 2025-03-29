@@ -18,6 +18,17 @@ if __name__ == "__main__":
 
 # Expense list display
 def create_widgets(self):
+
+    # Add save/load functionality
+    def save_data(self):
+        with open("expenses.json", "w") as f:
+            json.dump(self.expenses, f)
+
+    def load_data(self):
+        if os.path.exists("expenses.json"):
+            with open("expenses.json", "r") as f:
+                self.expenses = json.load(f)
+
     # Add expense functionality
     def add_expense(self):
         try:
@@ -44,6 +55,7 @@ def create_widgets(self):
         
         except ValueError:
             print("Please enter valid values")
+        self.save_data()
 
     def update_expense_list(self):
         self.expense_tree.delete(*self.expense_tree.get_children())
@@ -70,7 +82,8 @@ def create_widgets(self):
     
         self.expenses = [exp for exp in self.expenses if exp['id'] != expense_id]
         self.update_expense_list() 
-
+        self.save_data()
+        
     # Add summary functionality
     # Summary Frame
     summary_frame = ttk.LabelFrame(self.root, text="Summary")

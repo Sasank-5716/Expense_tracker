@@ -16,7 +16,12 @@ if __name__ == "__main__":
     root.mainloop()
 
 
+
+
+
+# Expense list display
 def create_widgets(self):
+    
     #input frame
     input_frame = ttk.LabelFrame(self.root, text="Add New Expense")
     input_frame.pack(pady=10, padx=10, fill="x")
@@ -45,3 +50,17 @@ def create_widgets(self):
     # Add Button
     add_btn = ttk.Button(input_frame, text="Add Expense")
     add_btn.grid(row=4, column=0, columnspan=2, pady=10)
+    
+    # Expense List Frame
+    list_frame = ttk.LabelFrame(self.root, text="Expense List")
+    list_frame.pack(pady=10, padx=10, fill="both", expand=True)
+    
+    # Treeview
+    columns = ("ID", "Amount", "Category", "Date", "Description")
+    self.expense_tree = ttk.Treeview(list_frame, columns=columns, show="headings")
+    
+    for col in columns:
+        self.expense_tree.heading(col, text=col)
+        self.expense_tree.column(col, width=100, anchor="center")
+    
+    self.expense_tree.pack(fill="both", expand=True)

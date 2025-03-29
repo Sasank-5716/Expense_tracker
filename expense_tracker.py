@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import json
 import os
 
@@ -73,55 +73,49 @@ class ExpenseTracker:
         self.summary_label = ttk.Label(summary_frame, text="")
         self.summary_label.pack()
 
-        # Add save/load functionality
-        def save_data(self):
-            with open("expenses.json", "w") as f:
-                json.dump(self.expenses, f)
+    # Add expense functionality
+    def add_expense(self):
+        try:
+            amount = float(self.amount_entry.get())
+            category = self.category_combo.get()
+            date = self.date_entry.get()
+            description = self.desc_entry.get()
 
-        def load_data(self):
-            if os.path.exists("expenses.json"):
-                with open("expenses.json", "r") as f:
-                    self.expenses = json.load(f)
-
-        # Add expense functionality
-        def add_expense(self):
-            try:
-                amount = float(self.amount_entry.get())
-                category = self.category_combo.get()
-                date = self.date_entry.get()
-                description = self.desc_entry.get()
-
-                # Input validation
-                if not date or not description:
-                    messagebox.showerror("Error", "Please fill all fields")
-                    return
+            # Input validation
+            if not date or not description:
+                messagebox.showerror("Error", "Please fill all fields")
+                return
             
-                # Date format validation (basic check)
-                if len(date) != 10 or date[4] != '-' or date[7] != '-':
-                    messagebox.showerror("Error", "Please enter date in YYYY-MM-DD format")
-                    return
+            # Date format validation (basic check)
+            if len(date) != 10 or date[4] != '-' or date[7] != '-':
+                messagebox.showerror("Error", "Please enter date in YYYY-MM-DD format")
+                return
             
-                expense = {
-                    "id": len(self.expenses) + 1,
-                    "amount": amount,
-                    "category": category,
-                    "date": date,
-                    "description": description
-                }
+            expense = {
+                "id": len(self.expenses) + 1,
+                "amount": amount,
+                "category": category,
+                "date": date,
+                "description": description
+            }
         
-                self.expenses.append(expense)
-                self.update_expense_list()
-        
-                # Clear fields
-                self.amount_entry.delete(0, tk.END)
-                self.date_entry.delete(0, tk.END)
-                self.desc_entry.delete(0, tk.END)
-        
-            except ValueError:
-                print("Please enter valid values")
+            self.expenses.append(expense)
+            self.update_expense_list()
+            self.update_summary()
             self.save_data()
 
-        def update_expense_list(self):
+            # Clear fields
+            self.amount_entry.delete(0, tk.END)
+            self.date_entry.delete(0, tk.END)
+            self.desc_entry.delete(0, tk.END)
+        
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid amount")
+        except Exception as e:
+            messagebox.showerror("Error", f"An unexpected error occurred: {str(e)}")
+
+    def update_expense_list(self):
+        try:
             self.expense_tree.delete(*self.expense_tree.get_children())
             for exp in self.expenses:
                 self.expense_tree.insert("", "end", values=(
@@ -131,32 +125,59 @@ class ExpenseTracker:
                     exp['date'],
                     exp['description']
                 ))
-    
-            # Delete Button
-            delete_btn = ttk.Button(list_frame, text="Delete Selected", command=self.delete_expense)
-            delete_btn.pack(pady=5)
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to update display: {str(e)}")
+            
 
-        def delete_expense(self):
-            selected = self.expense_tree.selection()
-            if not selected:
-                return
+    def delete_expense(self):
+        selected = self.expense_tree.selection()
+        if not selected:
+            messagebox.showwarning("Warning", "Please select an expense to delete")
+            return
         
+        try:
             item = self.expense_tree.item(selected[0])
             expense_id = item['values'][0]
-    
             self.expenses = [exp for exp in self.expenses if exp['id'] != expense_id]
-            self.update_expense_list() 
+            
+            # Reassign IDs
+            for i, exp in enumerate(self.expenses, 1):
+                exp['id'] = i
+
+            self.update_expense_list()
+            self.update_summary() 
             self.save_data()
 
-        # Add summary functionality
-        # Summary Frame
-        summary_frame = ttk.LabelFrame(self.root, text="Summary")
-        summary_frame.pack(pady=10, padx=10, fill="x")
-    
-        self.summary_label = ttk.Label(summary_frame, text="")
-        self.summary_label.pack()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to delete expense: {str(e)}")
+
 
     def update_summary(self):
-        total = sum(exp['amount'] for exp in self.expenses)
-        summary_text = f"Total Expenses: ${total:.2f} | Number of Expenses: {len(self.expenses)}"
-        self.summary_label.config(text=summary_text)
+        try:
+            total = sum(exp['amount'] for exp in self.expenses)
+            summary_text = f"Total Expenses: ${total:.2f} | Number of Expenses: {len(self.expenses)}"
+                
+            self.summary_label.config(text=summary_text)
+
+        except Exception as e:
+            self.summary_label.config(text="Error calculating summary")
+
+    def save_data(self):
+        try:
+            with open("expenses.json", "w") as f:
+                json.dump(self.expenses, f)
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to save data: {str(e)}")
+    
+    def load_data(self):
+        try:
+            if os.path.exists("expenses.json"):
+                with open("expenses.json", "r") as f:
+                    self.expenses = json.load(f)
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load data: {str(e)}")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ExpenseTracker(root)
+    root.mainloop()

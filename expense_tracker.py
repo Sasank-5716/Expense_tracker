@@ -64,3 +64,42 @@ def create_widgets(self):
         self.expense_tree.column(col, width=100, anchor="center")
     
     self.expense_tree.pack(fill="both", expand=True)
+
+
+# Add expense functionality
+def add_expense(self):
+    try:
+        amount = float(self.amount_entry.get())
+        category = self.category_combo.get()
+        date = self.date_entry.get()
+        description = self.desc_entry.get()
+        
+        expense = {
+            "id": len(self.expenses) + 1,
+            "amount": amount,
+            "category": category,
+            "date": date,
+            "description": description
+        }
+        
+        self.expenses.append(expense)
+        self.update_expense_list()
+        
+        # Clear fields
+        self.amount_entry.delete(0, tk.END)
+        self.date_entry.delete(0, tk.END)
+        self.desc_entry.delete(0, tk.END)
+        
+    except ValueError:
+        print("Please enter valid values")
+
+def update_expense_list(self):
+    self.expense_tree.delete(*self.expense_tree.get_children())
+    for exp in self.expenses:
+        self.expense_tree.insert("", "end", values=(
+            exp['id'],
+            f"${exp['amount']:.2f}",
+            exp['category'],
+            exp['date'],
+            exp['description']
+        ))

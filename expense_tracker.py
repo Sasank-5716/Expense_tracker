@@ -69,4 +69,17 @@ def create_widgets(self):
         expense_id = item['values'][0]
     
         self.expenses = [exp for exp in self.expenses if exp['id'] != expense_id]
-        self.update_expense_list()
+        self.update_expense_list() 
+
+    # Add summary functionality
+    # Summary Frame
+    summary_frame = ttk.LabelFrame(self.root, text="Summary")
+    summary_frame.pack(pady=10, padx=10, fill="x")
+    
+    self.summary_label = ttk.Label(summary_frame, text="")
+    self.summary_label.pack()
+
+def update_summary(self):
+    total = sum(exp['amount'] for exp in self.expenses)
+    summary_text = f"Total Expenses: ${total:.2f} | Number of Expenses: {len(self.expenses)}"
+    self.summary_label.config(text=summary_text)

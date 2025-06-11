@@ -25,6 +25,9 @@ Shopping
 
 Others
 
+## Screenshot
+![Expense tracker](expense_tracker.png)
+
 ## Installation
 Make sure you have Python 3 installed.
 

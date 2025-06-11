@@ -72,4 +72,4 @@ Ensures all fields are filled before adding an expense.
 
 Displays appropriate error or warning messages for invalid inputs or operations.
 
-Created with Python Tkinter for easy expense management and tracking.
+### Created with Python Tkinter for easy expense management and tracking.
